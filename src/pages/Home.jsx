@@ -95,7 +95,8 @@ function Home() {
               <img 
                 src={headshotImage} 
                 alt="Kevin Slote" 
-                className="profile-image w-full h-full object-cover"
+                className="w-full h-full object-cover object-top"
+                style={{transform: 'scale(0.14)'}}
               />
             </motion.div>
             
