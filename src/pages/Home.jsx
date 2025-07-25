@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion'
-import { Mail, Phone, Github, ExternalLink, MapPin, Calendar, BookOpen, Youtube } from 'lucide-react'
+import { Mail, Phone, Github, ExternalLink, MapPin, Calendar, BookOpen, Youtube, Download } from 'lucide-react'
 import headshotImage from '../assets/headshot.jpg'
 import BlogFeed from '../components/BlogFeed'
 import YouTubeFeed from '../components/YouTubeFeed'
@@ -84,23 +84,35 @@ function Home() {
       animate="visible"
       className="min-h-screen"
     >
+      {/* Skip to main content link for screen readers */}
+      <a 
+        href="#main-content" 
+        className="skip-link"
+        aria-label="Skip to main content"
+      >
+        Skip to main content
+      </a>
+      
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" aria-labelledby="hero-heading">
         <div className="container">
           <div className="hero-content">
             <motion.div
               variants={imageVariants}
               className="hero-image"
+              role="img"
+              aria-label="Kevin Slote headshot photo"
             >
               <img 
                 src={headshotImage} 
-                alt="Kevin Slote" 
+                alt="Kevin Slote, Applied Mathematician and Data Scientist" 
                 className="w-full h-full object-cover object-top"
                 style={{transform: 'scale(0.14)'}}
               />
             </motion.div>
             
             <motion.h1 
+              id="hero-heading"
               variants={itemVariants}
               className="hero-title"
             >
@@ -126,12 +138,15 @@ function Home() {
             <motion.div 
               variants={itemVariants}
               className="hero-links"
+              role="navigation"
+              aria-label="Primary actions"
             >
               <a 
                 href="mailto:kslote1@gmail.com" 
                 className="btn btn-primary"
+                aria-label="Send email to Kevin Slote"
               >
-                <Mail size={16} />
+                <Mail size={16} aria-hidden="true" />
                 Contact Me
               </a>
               <a 
@@ -139,8 +154,9 @@ function Home() {
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="btn btn-ghost"
+                aria-label="Visit Kevin Slote's GitHub profile (opens in new tab)"
               >
-                <Github size={16} />
+                <Github size={16} aria-hidden="true" />
                 GitHub
               </a>
             </motion.div>
@@ -167,10 +183,11 @@ function Home() {
       </section>
 
       {/* Current Research */}
-      <section className="section">
+      <main id="main-content">
+      <section className="section" aria-labelledby="research-heading">
         <div className="container">
           <motion.div variants={itemVariants}>
-            <h2 className="text-2xl font-semibold text-center mb-12">Current Research</h2>
+            <h2 id="research-heading" className="text-2xl font-semibold text-center mb-12">Current Research</h2>
             <div className="section-grid two-column">
               {currentResearch.map((research, index) => (
                 <motion.div
@@ -346,6 +363,16 @@ function Home() {
                 Email Me
               </motion.a>
               <motion.a 
+                href="/kevin-slote-cv.pdf" 
+                download
+                className="btn btn-ghost"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Download size={16} />
+                Download CV
+              </motion.a>
+              <motion.a 
                 href="/publications" 
                 className="btn btn-ghost"
                 whileHover={{ scale: 1.05 }}
@@ -358,6 +385,7 @@ function Home() {
           </motion.div>
         </div>
       </section>
+      </main>
     </motion.div>
   )
 }
