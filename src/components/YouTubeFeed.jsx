@@ -2,11 +2,14 @@
 import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import { Play, ExternalLink, Calendar, Clock, Eye, Youtube } from 'lucide-react'
+import { parseYouTubeUrls, fetchVideoMetadata } from '../utils/youtubeParser'
+import youtubeUrls from '../assets/youtube.txt?raw'
 
 function YouTubeFeed({ maxVideos = 6 }) {
   const [videos, setVideos] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [usingMockData, setUsingMockData] = useState(false)
 
   // Mock data - replace with actual YouTube API integration
   const mockVideos = [
@@ -73,26 +76,74 @@ function YouTubeFeed({ maxVideos = 6 }) {
   ]
 
   useEffect(() => {
-    const fetchVideos = async () => {
+    const loadVideos = async () => {
       try {
         setLoading(true)
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 1200))
+        setUsingMockData(false)
         
-        // In a real implementation, you would fetch from YouTube API:
-        // const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=${maxVideos}&order=date&key=${apiKey}`)
-        // const data = await response.json()
-        // setVideos(data.items)
+        // Parse video URLs from the text file
+        const parsedVideos = parseYouTubeUrls(youtubeUrls)
         
-        setVideos(mockVideos.slice(0, maxVideos))
+        if (parsedVideos.length === 0) {
+          console.warn('No valid YouTube URLs found in youtube.txt')
+          setVideos(mockVideos.slice(0, maxVideos))
+          setUsingMockData(true)
+          setLoading(false)
+          return
+        }
+        
+        // Limit to maxVideos
+        const videosToShow = parsedVideos.slice(0, maxVideos)
+        
+        // Set initial videos with basic info
+        setVideos(videosToShow)
         setLoading(false)
+        
+        // Fetch metadata for each video in background
+        const enhancedVideos = await Promise.allSettled(
+          videosToShow.map(async (video) => {
+            const metadata = await fetchVideoMetadata(video.videoId)
+            
+            if (metadata) {
+              return {
+                ...video,
+                title: metadata.title,
+                author: metadata.author,
+                description: `Video by ${metadata.author}`,
+                // Try HD thumbnail first, fallback to standard
+                thumbnail: video.thumbnailHD,
+                publishedAt: new Date().toISOString(), // Still placeholder
+                duration: 'Watch on YouTube',
+                viewCount: 'YouTube',
+                tags: []
+              }
+            }
+            
+            return {
+              ...video,
+              title: `YouTube Video`,
+              description: 'Click to watch on YouTube',
+              duration: 'Watch on YouTube',
+              viewCount: 'YouTube'
+            }
+          })
+        )
+        
+        // Update with enhanced metadata
+        const finalVideos = enhancedVideos.map((result, index) => 
+          result.status === 'fulfilled' ? result.value : videosToShow[index]
+        )
+        
+        setVideos(finalVideos)
+        
       } catch (err) {
+        console.error('Error loading YouTube videos:', err)
         setError('Failed to load YouTube videos')
         setLoading(false)
       }
     }
 
-    fetchVideos()
+    loadVideos()
   }, [maxVideos])
 
   const formatDate = (dateString) => {
@@ -118,17 +169,44 @@ function YouTubeFeed({ maxVideos = 6 }) {
   if (loading) {
     return (
       <div className="space-y-6">
-        {[...Array(3)].map((_, index) => (
+        {[...Array(maxVideos > 3 ? 3 : maxVideos)].map((_, index) => (
           <div key={index} className="minimal-card animate-pulse">
-            <div className="aspect-video bg-gray-200 rounded-lg mb-4"></div>
-            <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-            <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
-            <div className="flex space-x-4">
-              <div className="h-3 bg-gray-200 rounded w-16"></div>
-              <div className="h-3 bg-gray-200 rounded w-20"></div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* Video Thumbnail Skeleton */}
+              <div className="relative">
+                <div className="aspect-video bg-gray-200 rounded-lg"></div>
+                <div className="absolute bottom-2 right-2 bg-gray-300 h-4 w-12 rounded"></div>
+              </div>
+              
+              {/* Video Details Skeleton */}
+              <div className="md:col-span-2">
+                <div className="h-5 bg-gray-200 rounded w-4/5 mb-3"></div>
+                <div className="space-y-2 mb-4">
+                  <div className="h-3 bg-gray-200 rounded"></div>
+                  <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+                  <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="h-3 bg-gray-200 rounded w-20"></div>
+                    <div className="h-3 bg-gray-200 rounded w-16"></div>
+                    <div className="h-3 bg-gray-200 rounded w-12"></div>
+                  </div>
+                  <div className="flex space-x-2">
+                    <div className="h-5 bg-gray-200 rounded-full w-16"></div>
+                    <div className="h-5 bg-gray-200 rounded-full w-20"></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         ))}
+        <div className="text-center">
+          <div className="inline-flex items-center space-x-2 text-gray-500">
+            <Youtube size={16} className="animate-pulse" />
+            <span>Loading latest videos...</span>
+          </div>
+        </div>
       </div>
     )
   }
@@ -158,7 +236,7 @@ function YouTubeFeed({ maxVideos = 6 }) {
             {/* Video Thumbnail */}
             <div className="relative">
               <a 
-                href={`https://www.youtube.com/watch?v=${video.videoId}`}
+                href={video.watchUrl || `https://www.youtube.com/watch?v=${video.videoId}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block aspect-video rounded-lg overflow-hidden bg-gray-900 group-hover:scale-105 transition-transform duration-200"
@@ -167,15 +245,23 @@ function YouTubeFeed({ maxVideos = 6 }) {
                   src={video.thumbnail}
                   alt={video.title}
                   className="w-full h-full object-cover opacity-80"
+                  onError={(e) => {
+                    // Fallback to standard quality thumbnail if HD fails
+                    if (e.target.src.includes('maxresdefault')) {
+                      e.target.src = `https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`
+                    }
+                  }}
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="bg-red-600 rounded-full p-3 group-hover:scale-110 transition-transform duration-200">
                     <Play size={24} className="text-white ml-1" fill="currentColor" />
                   </div>
                 </div>
-                <div className="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white text-xs px-2 py-1 rounded">
-                  {video.duration}
-                </div>
+                {video.duration && video.duration !== 'Loading...' && (
+                  <div className="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white text-xs px-2 py-1 rounded">
+                    {video.duration}
+                  </div>
+                )}
               </a>
             </div>
 
@@ -183,7 +269,7 @@ function YouTubeFeed({ maxVideos = 6 }) {
             <div className="md:col-span-2">
               <h3 className="font-semibold text-lg leading-tight mb-3 group-hover:text-blue-600 transition-colors">
                 <a 
-                  href={`https://www.youtube.com/watch?v=${video.videoId}`}
+                  href={video.watchUrl || `https://www.youtube.com/watch?v=${video.videoId}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-start space-x-2"
@@ -231,6 +317,11 @@ function YouTubeFeed({ maxVideos = 6 }) {
         variants={itemVariants}
         className="text-center pt-6"
       >
+        {usingMockData && (
+          <div className="mb-4 text-sm text-gray-500 bg-gray-50 rounded-lg p-3">
+            🎥 Showing sample videos. Add URLs to src/assets/youtube.txt to display your content.
+          </div>
+        )}
         <a 
           href="https://www.youtube.com/@kevin.slote.math.research" 
           target="_blank" 

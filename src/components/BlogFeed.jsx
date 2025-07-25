@@ -7,6 +7,7 @@ function BlogFeed({ maxPosts = 6 }) {
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [usingMockData, setUsingMockData] = useState(false)
 
   // For demonstration, I'll use mock data since we need your actual Medium username
   // Replace with actual RSS feed integration
@@ -56,21 +57,44 @@ function BlogFeed({ maxPosts = 6 }) {
   ]
 
   useEffect(() => {
-    // Simulate API call
     const fetchPosts = async () => {
       try {
         setLoading(true)
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 1000))
         
-        // In a real implementation, you would fetch from:
-        // const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://medium.com/feed/@yourusername')
-        // const data = await response.json()
-        // setPosts(data.items.slice(0, maxPosts))
+        // Try to fetch real Medium posts via RSS
+        try {
+          // Using RSS2JSON service to convert Medium RSS to JSON
+          const mediumUsername = import.meta.env.VITE_MEDIUM_USERNAME || 'kslote'
+          const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=https://medium.com/feed/@${mediumUsername}`)
+          
+          if (response.ok) {
+            const data = await response.json()
+            if (data.status === 'ok' && data.items.length > 0) {
+              const formattedPosts = data.items.slice(0, maxPosts).map(item => ({
+                title: item.title,
+                description: item.description?.replace(/<[^>]*>/g, '').substring(0, 200) + '...' || 'No description available',
+                link: item.link,
+                pubDate: item.pubDate,
+                categories: item.categories || []
+              }))
+              setPosts(formattedPosts)
+              setUsingMockData(false)
+              setLoading(false)
+              return
+            }
+          }
+        } catch (apiError) {
+          console.log('Medium RSS failed, using mock data:', apiError)
+        }
         
+        // Fallback to mock data if API fails
+        await new Promise(resolve => setTimeout(resolve, 500))
         setPosts(mockPosts.slice(0, maxPosts))
+        setUsingMockData(true)
         setLoading(false)
+        
       } catch (err) {
+        console.error('Error fetching blog posts:', err)
         setError('Failed to load blog posts')
         setLoading(false)
       }
@@ -108,16 +132,38 @@ function BlogFeed({ maxPosts = 6 }) {
   if (loading) {
     return (
       <div className="space-y-6">
-        {[...Array(3)].map((_, index) => (
+        {[...Array(maxPosts > 3 ? 3 : maxPosts)].map((_, index) => (
           <div key={index} className="minimal-card animate-pulse">
-            <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-            <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
-            <div className="space-y-2">
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex-1">
+                <div className="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+              </div>
+              <div className="h-4 w-4 bg-gray-200 rounded"></div>
+            </div>
+            <div className="space-y-2 mb-4">
               <div className="h-3 bg-gray-200 rounded"></div>
               <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+              <div className="h-3 bg-gray-200 rounded w-4/5"></div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="h-3 bg-gray-200 rounded w-20"></div>
+                <div className="h-3 bg-gray-200 rounded w-16"></div>
+              </div>
+              <div className="flex space-x-2">
+                <div className="h-5 bg-gray-200 rounded-full w-16"></div>
+                <div className="h-5 bg-gray-200 rounded-full w-20"></div>
+              </div>
             </div>
           </div>
         ))}
+        <div className="text-center">
+          <div className="inline-flex items-center space-x-2 text-gray-500">
+            <BookOpen size={16} className="animate-spin" />
+            <span>Loading latest posts...</span>
+          </div>
+        </div>
       </div>
     )
   }
@@ -189,8 +235,13 @@ function BlogFeed({ maxPosts = 6 }) {
         variants={itemVariants}
         className="text-center pt-6"
       >
+        {usingMockData && (
+          <div className="mb-4 text-sm text-gray-500 bg-gray-50 rounded-lg p-3">
+            📝 Showing sample posts. Connect your Medium account to display real articles.
+          </div>
+        )}
         <a 
-          href="https://medium.com/@kslote" 
+          href={`https://medium.com/@${import.meta.env.VITE_MEDIUM_USERNAME || 'kslote'}`} 
           target="_blank" 
           rel="noopener noreferrer"
           className="btn btn-ghost"
