@@ -8,6 +8,7 @@ import Blog from './pages/Blog'
 import Videos from './pages/Videos'
 import Teaching from './pages/Teaching'
 import Contact from './pages/Contact'
+import NotFound from './pages/NotFound'
 import './App.css'
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
             <Route path="/videos" element={<Videos />} />
             <Route path="/teaching" element={<Teaching />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
       </div>

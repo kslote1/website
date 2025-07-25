@@ -1,6 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion'
 import { Mail, Phone, MapPin, ExternalLink, Github, User, Calendar, Clock, MessageCircle, Send, Building, Globe } from 'lucide-react'
+import ContactForm from '../components/ContactForm'
 
 function Contact() {
   const containerVariants = {
@@ -333,17 +334,23 @@ function Contact() {
           </div>
         </motion.section>
 
+        {/* Contact Form */}
+        <motion.section variants={itemVariants} className="mb-20">
+          <div className="max-w-2xl mx-auto">
+            <h2 className="text-2xl font-semibold mb-8 text-center">Send a Message</h2>
+            <ContactForm />
+          </div>
+        </motion.section>
+
         {/* Call to Action */}
         <motion.section variants={itemVariants}>
           <div className="text-center bg-white rounded-2xl p-12 border border-gray-200">
             <div className="mb-6">
               <Send className="mx-auto text-blue-500" size={48} />
             </div>
-            <h2 className="text-2xl font-semibold mb-4">Let's Start a Conversation</h2>
+            <h2 className="text-2xl font-semibold mb-4">Prefer Direct Contact?</h2>
             <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
-              Whether you're interested in collaboration, have questions about my research, 
-              or want to discuss opportunities, I'd love to hear from you. The best way to 
-              reach me is via email.
+              You can also reach me directly via email or check out my work on GitHub.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <motion.a 
