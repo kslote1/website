@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { Play, ExternalLink, Calendar, Clock, Eye, Youtube } from 'lucide-react'
 import { parseYouTubeUrls, fetchVideoMetadata } from '../utils/youtubeParser'
 import youtubeUrls from '../assets/youtube.txt?raw'
+import Carousel from 'react-multi-carousel'
+import 'react-multi-carousel/lib/styles.css'
 
 function YouTubeFeed({ maxVideos = 6 }) {
   const [videos, setVideos] = useState([])
@@ -154,6 +156,24 @@ function YouTubeFeed({ maxVideos = 6 }) {
     })
   }
 
+  const responsive = {
+    desktop: {
+      breakpoint: { max: 3000, min: 1024 },
+      items: 1,
+      slidesToSlide: 1
+    },
+    tablet: {
+      breakpoint: { max: 1024, min: 464 },
+      items: 1,
+      slidesToSlide: 1
+    },
+    mobile: {
+      breakpoint: { max: 464, min: 0 },
+      items: 1,
+      slidesToSlide: 1
+    }
+  }
+
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { 
@@ -221,97 +241,108 @@ function YouTubeFeed({ maxVideos = 6 }) {
   }
 
   return (
-    <div className="space-y-6">
-      {videos.map((video, index) => (
-        <motion.article
-          key={index}
-          variants={itemVariants}
-          initial="hidden"
-          animate="visible"
-          className="minimal-card group"
-          style={{ animationDelay: `${index * 0.1}s` }}
-          whileHover={{ y: -4, transition: { duration: 0.2 } }}
+    <div>
+      {/* Carousel Container */}
+      <div className="max-w-3xl mx-auto">
+        <Carousel
+          responsive={responsive}
+          infinite={true}
+          autoPlay={false}
+          keyBoardControl={true}
+          customTransition="all .5s"
+          transitionDuration={500}
+          containerClass="carousel-container"
+          removeArrowOnDeviceType={[]}
+          deviceType="desktop"
+          dotListClass="custom-dot-list-style"
+          itemClass="carousel-item-padding-40-px"
+          showDots={true}
+          arrows={true}
         >
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* Video Thumbnail */}
-            <div className="relative">
-              <a 
-                href={video.watchUrl || `https://www.youtube.com/watch?v=${video.videoId}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block aspect-video rounded-lg overflow-hidden bg-gray-900 group-hover:scale-105 transition-transform duration-200"
-              >
-                <img 
-                  src={video.thumbnail}
-                  alt={video.title}
-                  className="w-full h-full object-cover opacity-80"
-                  onError={(e) => {
-                    // Fallback to standard quality thumbnail if HD fails
-                    if (e.target.src.includes('maxresdefault')) {
-                      e.target.src = `https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`
-                    }
-                  }}
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="bg-red-600 rounded-full p-3 group-hover:scale-110 transition-transform duration-200">
-                    <Play size={24} className="text-white ml-1" fill="currentColor" />
-                  </div>
+          {videos.map((video, index) => (
+            <motion.div
+              key={index}
+              variants={itemVariants}
+              initial="hidden"
+              animate="visible"
+              className="px-4"
+            >
+              <div className="minimal-card group">
+                {/* Video Thumbnail */}
+                <div className="relative mb-6">
+                  <a 
+                    href={video.watchUrl || `https://www.youtube.com/watch?v=${video.videoId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block aspect-video rounded-lg overflow-hidden bg-gray-900 group-hover:scale-105 transition-transform duration-200"
+                  >
+                    <img 
+                      src={video.thumbnail}
+                      alt={video.title}
+                      className="w-full h-full object-cover opacity-80"
+                      onError={(e) => {
+                        // Fallback to standard quality thumbnail if HD fails
+                        if (e.target.src.includes('maxresdefault')) {
+                          e.target.src = `https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`
+                        }
+                      }}
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="bg-red-600 rounded-full p-4 group-hover:scale-110 transition-transform duration-200">
+                        <Play size={32} className="text-white ml-1" fill="currentColor" />
+                      </div>
+                    </div>
+                    {video.duration && video.duration !== 'Loading...' && (
+                      <div className="absolute bottom-3 right-3 bg-black bg-opacity-80 text-white text-sm px-3 py-1 rounded">
+                        {video.duration}
+                      </div>
+                    )}
+                  </a>
                 </div>
-                {video.duration && video.duration !== 'Loading...' && (
-                  <div className="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white text-xs px-2 py-1 rounded">
-                    {video.duration}
-                  </div>
-                )}
-              </a>
-            </div>
 
-            {/* Video Details */}
-            <div className="md:col-span-2">
-              <h3 className="font-semibold text-lg leading-tight mb-3 group-hover:text-blue-600 transition-colors">
-                <a 
-                  href={video.watchUrl || `https://www.youtube.com/watch?v=${video.videoId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-start space-x-2"
-                >
-                  <span>{video.title}</span>
-                  <ExternalLink size={16} className="mt-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </a>
-              </h3>
-              
-              <p className="text-gray-600 mb-4 leading-relaxed">{video.description}</p>
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4 text-sm text-gray-500">
-                  <div className="flex items-center space-x-1">
-                    <Calendar size={14} />
-                    <span>{formatDate(video.publishedAt)}</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Eye size={14} />
-                    <span>{video.viewCount} views</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Clock size={14} />
-                    <span>{video.duration}</span>
-                  </div>
-                </div>
-                
-                <div className="flex flex-wrap gap-1">
-                  {video.tags?.slice(0, 2).map((tag, i) => (
-                    <span 
-                      key={i} 
-                      className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full"
+                {/* Video Details */}
+                <div className="text-center">
+                  <h3 className="font-semibold text-xl leading-tight mb-3 group-hover:text-blue-600 transition-colors">
+                    <a 
+                      href={video.watchUrl || `https://www.youtube.com/watch?v=${video.videoId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center space-x-2"
                     >
-                      {tag}
-                    </span>
-                  ))}
+                      <span>{video.title}</span>
+                      <ExternalLink size={16} className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                    </a>
+                  </h3>
+                  
+                  <p className="text-gray-600 mb-4 leading-relaxed max-w-lg mx-auto">{video.description}</p>
+                  
+                  <div className="flex items-center justify-center space-x-6 text-sm text-gray-500 mb-4">
+                    <div className="flex items-center space-x-2">
+                      <Calendar size={14} />
+                      <span>{formatDate(video.publishedAt)}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Eye size={14} />
+                      <span>{video.viewCount}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-center flex-wrap gap-2">
+                    {video.tags?.slice(0, 3).map((tag, i) => (
+                      <span 
+                        key={i} 
+                        className="px-3 py-1 bg-red-100 text-red-800 text-sm rounded-full"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </motion.article>
-      ))}
+            </motion.div>
+          ))}
+        </Carousel>
+      </div>
       
       <motion.div 
         variants={itemVariants}

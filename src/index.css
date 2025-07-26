@@ -325,6 +325,100 @@ pre {
   transform: scale(1.05);
 }
 
+/* Horizontal scrolling utilities */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
+}
+
+/* Text clamping utilities */
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* React Multi Carousel Custom Styles */
+.react-multi-carousel-list {
+  position: relative;
+}
+
+.react-multi-carousel-track {
+  position: relative;
+}
+
+.react-multi-carousel-item {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+/* Custom arrow styles */
+.react-multiple-carousel__arrow {
+  background: var(--background) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 50% !important;
+  color: var(--secondary) !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
+  font-size: 18px !important;
+  z-index: 10 !important;
+  transition: var(--transition) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.react-multiple-carousel__arrow:hover {
+  background: var(--muted) !important;
+  border-color: var(--accent) !important;
+  color: var(--primary) !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15) !important;
+}
+
+.react-multiple-carousel__arrow::before {
+  font-size: 18px !important;
+  color: inherit !important;
+}
+
+.react-multiple-carousel__arrow--left {
+  left: 20px !important;
+}
+
+.react-multiple-carousel__arrow--right {
+  right: 20px !important;
+}
+
+/* Custom dot styles */
+.react-multi-carousel-dot-list {
+  bottom: -50px !important;
+  gap: 12px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.react-multi-carousel-dot button {
+  width: 12px !important;
+  height: 12px !important;
+  border-radius: 50% !important;
+  background: var(--border) !important;
+  border: none !important;
+  transition: var(--transition) !important;
+  cursor: pointer !important;
+}
+
+.react-multi-carousel-dot--active button {
+  background: var(--accent) !important;
+  transform: scale(1.2) !important;
+}
+
+.react-multi-carousel-dot button:hover {
+  background: var(--secondary) !important;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   :root {

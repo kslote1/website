@@ -3,7 +3,9 @@
 # Example:
 # https://medium.com/@kslote/my-article | My Article Title | Article description here | 2025-01-15 | Mathematics,AI,Research
 
-https://example.com/placeholder | Sample Blog Post | This is a sample blog post. Replace this file with your actual blog URLs. | 2025-01-20 | Mathematics,Research
-https://medium.com/@kslote1/measuring-model-performance-without-ground-truth-labels-ee1197e6bdb4
-https://medium.com/@kslote1/monitoring-process-for-detecting-prior-drift-a8e149329228
-https://medium.com/@kslote1/abstract-microwaves-can-be-used-to-measure-the-crystalline-structure-inside-of-solid-objects-and-e400961224d2
+https://medium.com/@kslote1/measuring-model-performance-without-ground-truth-labels-ee1197e6bdb4 | Measruing Model Performancs on Unlabeled Data | FICC Paper blog post. | 2025-01-20 | Mathematics,Research
+
+https://medium.com/@kslote1/monitoring-process-for-detecting-prior-drift-a8e149329228 | Monitoring Prior Drift | How to measure prior drift in machine learning models. | 2025-01-20 | Mathematics,Research
+
+https://medium.com/@kslote1/abstract-microwaves-can-be-used-to-measure-the-crystalline-structure-inside-of-solid-objects-and-e400961224d2 | Experimental Verification of Bragg's Constant | Problem from experimental Physics. | 2025-01-20 | Mathematics,Research
+
