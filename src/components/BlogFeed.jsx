@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { BookOpen, ExternalLink, Calendar, Clock } from 'lucide-react'
 import { parseBlogPosts, enhanceMediumPost } from '../utils/blogParser'
 import blogUrls from '../assets/blogs.txt?raw'
+import Carousel from 'react-multi-carousel'
+import 'react-multi-carousel/lib/styles.css'
 
 function BlogFeed({ maxPosts = 6 }) {
   const [posts, setPosts] = useState([])
@@ -134,6 +136,29 @@ function BlogFeed({ maxPosts = 6 }) {
     return Math.ceil(words / wordsPerMinute)
   }
 
+  const getMediumImage = () => {
+    // Use a simple, reliable placeholder image
+    return 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&h=630&fit=crop&crop=entropy&auto=format&q=80'
+  }
+
+  const responsive = {
+    desktop: {
+      breakpoint: { max: 3000, min: 1024 },
+      items: 1,
+      slidesToSlide: 1
+    },
+    tablet: {
+      breakpoint: { max: 1024, min: 464 },
+      items: 1,
+      slidesToSlide: 1
+    },
+    mobile: {
+      breakpoint: { max: 464, min: 0 },
+      items: 1,
+      slidesToSlide: 1
+    }
+  }
+
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { 
@@ -195,58 +220,101 @@ function BlogFeed({ maxPosts = 6 }) {
   }
 
   return (
-    <div className="space-y-6">
-      {posts.map((post, index) => (
-        <motion.article
-          key={index}
-          variants={itemVariants}
-          initial="hidden"
-          animate="visible"
-          className="minimal-card group"
-          style={{ animationDelay: `${index * 0.1}s` }}
-          whileHover={{ y: -4, transition: { duration: 0.2 } }}
+    <div>
+      {/* Carousel Container */}
+      <div className="max-w-3xl mx-auto">
+        <Carousel
+          responsive={responsive}
+          infinite={true}
+          autoPlay={false}
+          keyBoardControl={true}
+          customTransition="all .5s"
+          transitionDuration={500}
+          containerClass="carousel-container"
+          removeArrowOnDeviceType={[]}
+          deviceType="desktop"
+          dotListClass="custom-dot-list-style"
+          itemClass="carousel-item-padding-40-px"
+          showDots={true}
+          arrows={true}
         >
-          <div className="flex items-start justify-between mb-3">
-            <h3 className="font-semibold text-lg leading-tight group-hover:text-blue-600 transition-colors">
-              <a 
-                href={post.link} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-start space-x-2"
-              >
-                <span>{post.title}</span>
-                <ExternalLink size={16} className="mt-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </a>
-            </h3>
-          </div>
-          
-          <p className="text-gray-600 mb-4 leading-relaxed">{post.description}</p>
-          
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4 text-sm text-gray-500">
-              <div className="flex items-center space-x-1">
-                <Calendar size={14} />
-                <span>{formatDate(post.pubDate)}</span>
+          {posts.map((post, index) => (
+            <motion.div
+              key={index}
+              variants={itemVariants}
+              initial="hidden"
+              animate="visible"
+              className="px-4"
+            >
+              <div className="minimal-card group">
+                {/* Blog Post Image */}
+                <div className="relative mb-6">
+                  <a 
+                    href={post.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block aspect-video rounded-lg overflow-hidden bg-gray-100 group-hover:scale-105 transition-transform duration-200"
+                  >
+                    <img 
+                      src={getMediumImage()}
+                      alt={post.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        // Fallback to a solid color background
+                        e.target.style.display = 'none'
+                        e.target.parentElement.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div className="absolute top-4 right-4 bg-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <BookOpen size={16} className="text-gray-700" />
+                    </div>
+                  </a>
+                </div>
+
+                {/* Blog Post Details */}
+                <div className="text-center">
+                  <h3 className="font-semibold text-xl leading-tight mb-3 group-hover:text-blue-600 transition-colors">
+                    <a 
+                      href={post.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center space-x-2"
+                    >
+                      <span>{post.title}</span>
+                      <ExternalLink size={16} className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                    </a>
+                  </h3>
+                  
+                  <p className="text-gray-600 mb-4 leading-relaxed max-w-lg mx-auto">{post.description}</p>
+                  
+                  <div className="flex items-center justify-center space-x-6 text-sm text-gray-500 mb-4">
+                    <div className="flex items-center space-x-2">
+                      <Calendar size={14} />
+                      <span>{formatDate(post.pubDate)}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Clock size={14} />
+                      <span>{getReadingTime(post.description)} min read</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-center flex-wrap gap-2">
+                    {post.categories?.slice(0, 3).map((category, i) => (
+                      <span 
+                        key={i} 
+                        className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
+                      >
+                        {category}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center space-x-1">
-                <Clock size={14} />
-                <span>{getReadingTime(post.description)} min read</span>
-              </div>
-            </div>
-            
-            <div className="flex flex-wrap gap-1">
-              {post.categories?.slice(0, 2).map((category, i) => (
-                <span 
-                  key={i} 
-                  className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
-                >
-                  {category}
-                </span>
-              ))}
-            </div>
-          </div>
-        </motion.article>
-      ))}
+            </motion.div>
+          ))}
+        </Carousel>
+      </div>
       
       <motion.div 
         variants={itemVariants}
@@ -258,7 +326,7 @@ function BlogFeed({ maxPosts = 6 }) {
           </div>
         )}
         <a 
-          href={`https://medium.com/@${import.meta.env.VITE_MEDIUM_USERNAME || 'kslote'}`} 
+          href={`https://medium.com/@${import.meta.env.VITE_MEDIUM_USERNAME || 'kslote1'}`} 
           target="_blank" 
           rel="noopener noreferrer"
           className="btn btn-ghost"
