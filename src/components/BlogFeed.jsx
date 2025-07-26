@@ -136,8 +136,12 @@ function BlogFeed({ maxPosts = 6 }) {
     return Math.ceil(words / wordsPerMinute)
   }
 
-  const getMediumImage = () => {
-    // Use a simple, reliable placeholder image
+  const getBlogImage = (post) => {
+    // Use custom image if provided, otherwise use a default
+    if (post.image) {
+      return post.image
+    }
+    // Default placeholder image
     return 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&h=630&fit=crop&crop=entropy&auto=format&q=80'
   }
 
@@ -256,7 +260,7 @@ function BlogFeed({ maxPosts = 6 }) {
                     className="block aspect-video rounded-lg overflow-hidden bg-gray-100 group-hover:scale-105 transition-transform duration-200"
                   >
                     <img 
-                      src={getMediumImage()}
+                      src={getBlogImage(post)}
                       alt={post.title}
                       className="w-full h-full object-cover"
                       onError={(e) => {

@@ -10,14 +10,15 @@ export const parseBlogPosts = (textContent) => {
     
     // Handle both full format and URL-only format
     if (parts.length >= 2) {
-      // Full format: URL | Title | Description | Date | Tags
-      const [url, title, description = '', date = '', tags = ''] = parts
+      // Full format: URL | Title | Description | Date | Tags | Image (optional)
+      const [url, title, description = '', date = '', tags = '', image = ''] = parts
       return {
         title: title.trim(),
         description: description.trim() || 'Click to read more...',
         link: url.trim(),
         pubDate: date.trim() || new Date().toISOString(),
         categories: tags.trim() ? tags.split(',').map(tag => tag.trim()) : [],
+        image: image.trim() || null,
         id: `blog-${index}`,
         source: 'manual'
       }
