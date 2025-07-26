@@ -154,58 +154,15 @@ function Teaching() {
       <div className="container">
         {/* Header */}
         <motion.div variants={itemVariants} className="text-center mb-16">
-          <h1 className="text-4xl font-bold mb-4">Teaching & Mentoring</h1>
+          <h1 className="text-4xl font-bold mb-4">Mentoring & Leadership</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Passionate about fostering the next generation of mathematical thinkers and 
-            data scientists through innovative teaching methods and hands-on research mentoring.
+            Experience in guiding students and teams through research projects, technical training, 
+            and academic development across industry and academic settings.
           </p>
         </motion.div>
 
-        {/* Teaching Philosophy */}
-        <motion.section variants={itemVariants} className="mb-20">
-          <div className="flex items-center mb-8">
-            <Lightbulb className="mr-3 text-yellow-500" size={24} />
-            <h2 className="text-2xl font-semibold">Teaching Philosophy</h2>
-          </div>
-          
-          <div className="glass-card p-8 mb-8">
-            <blockquote className="text-lg text-gray-700 italic leading-relaxed mb-6">
-              "{teachingPhilosophy.core}"
-            </blockquote>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            {teachingPhilosophy.principles.map((principle, index) => {
-              const IconComponent = principle.icon
-              return (
-                <motion.div
-                  key={index}
-                  variants={itemVariants}
-                  className="minimal-card"
-                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                >
-                  <div className="flex items-start space-x-4">
-                    <div className="p-3 bg-blue-50 rounded-lg">
-                      <IconComponent size={24} className="text-blue-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold mb-2">{principle.title}</h3>
-                      <p className="text-gray-600 text-sm">{principle.description}</p>
-                    </div>
-                  </div>
-                </motion.div>
-              )
-            })}
-          </div>
-        </motion.section>
-
         {/* Mentoring Experience */}
-        <motion.section variants={itemVariants} className="mb-20">
-          <div className="flex items-center mb-8">
-            <Users className="mr-3 text-green-500" size={24} />
-            <h2 className="text-2xl font-semibold">Mentoring & Leadership Experience</h2>
-          </div>
-          
+        <motion.section variants={itemVariants}>
           <div className="timeline">
             {mentoring.map((experience, index) => (
               <motion.div
@@ -233,91 +190,6 @@ function Teaching() {
                 </div>
               </motion.div>
             ))}
-          </div>
-        </motion.section>
-
-        {/* Areas of Expertise */}
-        <motion.section variants={itemVariants} className="mb-20">
-          <div className="flex items-center mb-8">
-            <BookOpen className="mr-3 text-purple-500" size={24} />
-            <h2 className="text-2xl font-semibold">Teaching Expertise</h2>
-          </div>
-          
-          <div className="skills-grid">
-            {expertiseAreas.map((area, index) => (
-              <motion.div
-                key={index}
-                variants={itemVariants}
-                className="skill-category"
-                whileHover={{ y: -4, transition: { duration: 0.2 } }}
-              >
-                <h3 className="skill-title">{area.category}</h3>
-                <div className="space-y-2">
-                  {area.topics.map((topic, i) => (
-                    <div key={i} className="flex items-start space-x-2">
-                      <div className="w-1.5 h-1.5 bg-purple-400 rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="text-sm text-gray-700">{topic}</span>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.section>
-
-        {/* Future Teaching Interests */}
-        <motion.section variants={itemVariants} className="mb-20">
-          <h2 className="text-2xl font-semibold mb-8">Future Course Development</h2>
-          <div className="space-y-6">
-            {teachingInterests.map((course, index) => (
-              <motion.div
-                key={index}
-                variants={itemVariants}
-                className="minimal-card"
-                whileHover={{ x: 4, transition: { duration: 0.2 } }}
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-lg font-semibold">{course.title}</h3>
-                  <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                    {course.level}
-                  </span>
-                </div>
-                <p className="text-gray-600">{course.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </motion.section>
-
-        {/* Teaching Goals */}
-        <motion.section variants={itemVariants}>
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-12 text-center">
-            <div className="mb-6">
-              <GraduationCap className="mx-auto text-purple-500" size={48} />
-            </div>
-            <h2 className="text-2xl font-semibold mb-6">Teaching Mission</h2>
-            <div className="max-w-4xl mx-auto">
-              <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                My goal is to prepare students for successful careers in both academia and industry 
-                by emphasizing theoretical rigor, computational implementation skills, and 
-                interdisciplinary collaboration. I strive to create learning environments where 
-                students can explore the beauty of mathematics while developing practical skills 
-                for solving real-world problems.
-              </p>
-              <div className="grid md:grid-cols-3 gap-8 mt-8">
-                <div>
-                  <div className="text-2xl font-bold text-purple-600 mb-2">Theoretical Rigor</div>
-                  <p className="text-sm text-gray-600">Building strong mathematical foundations</p>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-purple-600 mb-2">Practical Skills</div>
-                  <p className="text-sm text-gray-600">Computational implementation and problem-solving</p>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-purple-600 mb-2">Real-World Impact</div>
-                  <p className="text-sm text-gray-600">Applications across disciplines and industries</p>
-                </div>
-              </div>
-            </div>
           </div>
         </motion.section>
       </div>

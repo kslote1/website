@@ -2,6 +2,8 @@
 import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import { BookOpen, ExternalLink, Calendar, Clock } from 'lucide-react'
+import { parseBlogPosts, enhanceMediumPost } from '../utils/blogParser'
+import blogUrls from '../assets/blogs.txt?raw'
 
 function BlogFeed({ maxPosts = 6 }) {
   const [posts, setPosts] = useState([])
@@ -57,13 +59,27 @@ function BlogFeed({ maxPosts = 6 }) {
   ]
 
   useEffect(() => {
-    const fetchPosts = async () => {
+    const loadPosts = async () => {
       try {
         setLoading(true)
         
-        // Try to fetch real Medium posts via RSS
+        // First try to parse posts from blogs.txt file
+        const parsedPosts = parseBlogPosts(blogUrls)
+        
+        if (parsedPosts.length > 0) {
+          // Enhance posts (especially Medium ones) and limit to maxPosts
+          const enhancedPosts = parsedPosts
+            .slice(0, maxPosts)
+            .map(post => enhanceMediumPost(post))
+          
+          setPosts(enhancedPosts)
+          setUsingMockData(false)
+          setLoading(false)
+          return
+        }
+        
+        // Try to fetch from Medium RSS as fallback
         try {
-          // Using RSS2JSON service to convert Medium RSS to JSON
           const mediumUsername = import.meta.env.VITE_MEDIUM_USERNAME || 'kslote'
           const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=https://medium.com/feed/@${mediumUsername}`)
           
@@ -75,7 +91,8 @@ function BlogFeed({ maxPosts = 6 }) {
                 description: item.description?.replace(/<[^>]*>/g, '').substring(0, 200) + '...' || 'No description available',
                 link: item.link,
                 pubDate: item.pubDate,
-                categories: item.categories || []
+                categories: item.categories || [],
+                source: 'medium-rss'
               }))
               setPosts(formattedPosts)
               setUsingMockData(false)
@@ -84,23 +101,23 @@ function BlogFeed({ maxPosts = 6 }) {
             }
           }
         } catch (apiError) {
-          console.log('Medium RSS failed, using mock data:', apiError)
+          console.log('Medium RSS failed:', apiError)
         }
         
-        // Fallback to mock data if API fails
+        // Final fallback to mock data
         await new Promise(resolve => setTimeout(resolve, 500))
         setPosts(mockPosts.slice(0, maxPosts))
         setUsingMockData(true)
         setLoading(false)
         
       } catch (err) {
-        console.error('Error fetching blog posts:', err)
+        console.error('Error loading blog posts:', err)
         setError('Failed to load blog posts')
         setLoading(false)
       }
     }
 
-    fetchPosts()
+    loadPosts()
   }, [maxPosts])
 
   const formatDate = (dateString) => {
@@ -237,7 +254,7 @@ function BlogFeed({ maxPosts = 6 }) {
       >
         {usingMockData && (
           <div className="mb-4 text-sm text-gray-500 bg-gray-50 rounded-lg p-3">
-            📝 Showing sample posts. Connect your Medium account to display real articles.
+            📝 Showing sample posts. Add your blog URLs to src/assets/blogs.txt to display real articles.
           </div>
         )}
         <a 

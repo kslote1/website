@@ -16,11 +16,11 @@ function ContactForm() {
   const [errors, setErrors] = useState({})
 
   const contactTypes = [
-    { value: 'general', label: 'General Inquiry' },
-    { value: 'collaboration', label: 'Research Collaboration' },
-    { value: 'academic', label: 'Academic Opportunity' },
-    { value: 'industry', label: 'Industry Partnership' },
-    { value: 'media', label: 'Media/Interview' }
+    { value: 'general', label: 'General Inquiry', placeholder: 'I have a question about your work...' },
+    { value: 'collaboration', label: 'Research Collaboration', placeholder: 'I would like to collaborate on research in topological data analysis, neuroscience applications, or causal inference...' },
+    { value: 'academic', label: 'Academic Opportunity', placeholder: 'I am reaching out regarding a postdoctoral position, faculty opportunity, or academic partnership...' },
+    { value: 'industry', label: 'Industry Partnership', placeholder: 'I am interested in discussing applications of your research in industry, consulting opportunities, or technology transfer...' },
+    { value: 'media', label: 'Media/Interview', placeholder: 'I would like to interview you about your research in mathematics, AI, or neuroscience for...' }
   ]
 
   const validateForm = () => {
@@ -62,8 +62,9 @@ function ContactForm() {
     
     try {
       // Since this is a static site, we'll create a mailto link with pre-filled content
+      const contactType = contactTypes.find(t => t.value === formData.type)?.label || 'General Inquiry'
       const emailBody = `
-Contact Type: ${contactTypes.find(t => t.value === formData.type)?.label}
+Contact Type: ${contactType}
 
 Name: ${formData.name}
 Email: ${formData.email}
@@ -78,7 +79,7 @@ Sent via kevin-slote.com contact form
       const mailtoLink = `mailto:kslote1@gmail.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(emailBody)}`
       
       // Open email client
-      window.location.href = mailtoLink
+      window.open(mailtoLink, '_self')
       
       // Simulate success after a short delay
       setTimeout(() => {
@@ -92,7 +93,7 @@ Sent via kevin-slote.com contact form
           message: '',
           type: 'general'
         })
-      }, 1000)
+      }, 1500)
       
     } catch (error) {
       console.error('Form submission error:', error)
@@ -128,12 +129,16 @@ Sent via kevin-slote.com contact form
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center"
+          className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start"
         >
-          <CheckCircle className="text-green-500 mr-3" size={20} />
+          <CheckCircle className="text-green-500 mr-3 mt-0.5" size={20} />
           <div>
-            <p className="text-green-800 font-medium">Message sent successfully!</p>
-            <p className="text-green-600 text-sm">Your email client should open shortly. I'll get back to you soon.</p>
+            <p className="text-green-800 font-medium">Message prepared successfully!</p>
+            <p className="text-green-600 text-sm">Your email client should open with the pre-filled message. If it doesn't open automatically, you can send it manually to kslote1@gmail.com.</p>
+            <p className="text-green-600 text-sm mt-1">Expected response time: {
+              formData.type === 'collaboration' ? '2-3 days' :
+              formData.type === 'academic' ? '24-48 hours' : '1-2 days'
+            }</p>
           </div>
         </motion.div>
       )}
@@ -263,7 +268,8 @@ Sent via kevin-slote.com contact form
             className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-vertical ${
               errors.message ? 'border-red-500 bg-red-50' : 'border-gray-300'
             }`}
-            placeholder="Please provide details about your inquiry, research interests, collaboration ideas, or any questions you have..."
+            placeholder={contactTypes.find(t => t.value === formData.type)?.placeholder || "Please provide details about your inquiry, research interests, collaboration ideas, or any questions you have..."}
+            maxLength={2000}
           />
           {errors.message && (
             <p className="mt-1 text-sm text-red-600 flex items-center">
@@ -272,7 +278,7 @@ Sent via kevin-slote.com contact form
             </p>
           )}
           <p className="mt-1 text-sm text-gray-500">
-            {formData.message.length}/500 characters
+            {formData.message.length}/2000 characters
           </p>
         </div>
 
@@ -303,10 +309,24 @@ Sent via kevin-slote.com contact form
       </form>
 
       <div className="mt-6 pt-6 border-t border-gray-200">
-        <p className="text-sm text-gray-600 text-center">
-          This form will open your email client with the message pre-filled. 
-          Your information is not stored on this website.
-        </p>
+        <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
+          <div>
+            <h4 className="font-medium text-gray-800 mb-2">Privacy & Security</h4>
+            <ul className="space-y-1">
+              <li>• No data stored on this website</li>
+              <li>• Opens your email client directly</li>
+              <li>• Your privacy is protected</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-medium text-gray-800 mb-2">Response Time</h4>
+            <ul className="space-y-1">
+              <li>• Academic inquiries: 24-48 hours</li>
+              <li>• Collaboration requests: 2-3 days</li>
+              <li>• General questions: 1-2 days</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </motion.div>
   )
